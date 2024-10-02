@@ -34,6 +34,5 @@ jobs:
         if: steps.jira-check.outputs.jira_ticket != ''
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: "Linked Jira Ticket: ${{ steps.jira-check.outputs.jira_ticket }}"
