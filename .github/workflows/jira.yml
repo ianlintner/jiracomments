@@ -29,10 +29,9 @@ jobs:
           else
             echo "No Jira ticket found."
           fi
-           
-      - name: Comment on PR with Jira ticket
-        if: steps.jira-check.outputs.jira_ticket != ''
-        uses: peter-evans/create-or-update-comment@v4.0.0
+      - name: Comment a pull_request
+        uses: mb2dev/github-action-comment-pull-request@1.0.0
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: "Linked Jira Ticket: ${{ steps.jira-check.outputs.jira_ticket }}"
+          message: "Linked Jira Ticket: ${{ steps.jira-check.outputs.jira_ticket }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}           
+
