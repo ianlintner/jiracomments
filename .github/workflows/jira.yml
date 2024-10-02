@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Link PR to Jira
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  link-jira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for Jira Ticket in PR title or branch
+        id: jira-check
+        run: |
+          TICKET_PATTERN="[A-Z]{2,5}-[0-9]{1,5}"
+          TITLE="${{ github.event.pull_request.title }}"
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          
+          if [[ "$TITLE" =~ $TICKET_PATTERN ]]; then
+            echo "Jira ticket found in PR title: ${BASH_REMATCH[0]}"
+            echo "::set-output name=jira_ticket::${BASH_REMATCH[0]}"
+          elif [[ "$BRANCH" =~ $TICKET_PATTERN ]]; then
+            echo "Jira ticket found in branch name: ${BASH_REMATCH[0]}"
+            echo "::set-output name=jira_ticket::${BASH_REMATCH[0]}"
+          else
+            echo "No Jira ticket found."
+          fi
+
+      - name: Comment on PR with Jira ticket
+        if: steps.jira-check.outputs.jira_ticket != ''
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "Linked Jira Ticket: ${{ steps.jira-check.outputs.jira_ticket }}"
